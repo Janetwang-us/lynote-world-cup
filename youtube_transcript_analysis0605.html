@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lynote.ai · YouTube Transcript 用户视频行为分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0f;--ink2:#3a3a3a;--ink3:#6b6b6b;--ink4:#a0a0a0;
+  --bg:#f7f5f0;--bg2:#ffffff;--bg3:#efede8;
+  --purple:#4a42b0;--purple-l:#eeedfd;
+  --teal:#12866a;--teal-l:#e0f5ee;
+  --coral:#c04a22;--coral-l:#faeae4;
+  --amber:#9a6010;--amber-l:#fdf0dc;
+  --blue:#1456a0;--blue-l:#e4eef9;
+  --gray:#6b6b6b;--gray-l:#f0efeb;
+  --accent:#4a42b0;
+  --radius:10px;--radius-lg:16px;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Outfit',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;font-size:15px}
+
+/* ── HEADER ── */
+.hero{
+  background:var(--ink);color:#fff;
+  padding:72px 48px 56px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    45deg,transparent,transparent 40px,rgba(255,255,255,.018) 40px,rgba(255,255,255,.018) 41px
+  );
+}
+.hero-inner{max-width:900px;margin:0 auto;position:relative}
+.hero-tag{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  color:rgba(255,255,255,.5);text-transform:uppercase;
+  margin-bottom:20px;display:flex;align-items:center;gap:8px;
+}
+.hero-tag::before{content:'';width:24px;height:1px;background:rgba(255,255,255,.4)}
+.hero h1{
+  font-family:var(--serif);font-size:clamp(32px,5vw,54px);
+  font-weight:400;line-height:1.15;letter-spacing:-.02em;
+  margin-bottom:16px;
+}
+.hero h1 em{font-style:italic;color:rgba(255,255,255,.7)}
+.hero-sub{color:rgba(255,255,255,.55);font-size:14px;font-weight:300;max-width:520px}
+
+/* ── NAV ── */
+.nav{
+  background:var(--bg2);border-bottom:1px solid #e8e5de;
+  position:sticky;top:0;z-index:100;
+}
+.nav-inner{
+  max-width:960px;margin:0 auto;
+  display:flex;gap:0;overflow-x:auto;
+}
+.nav-btn{
+  padding:14px 22px;font-size:13px;font-weight:500;
+  color:var(--ink3);cursor:pointer;white-space:nowrap;
+  border:none;background:none;border-bottom:2px solid transparent;
+  transition:all .2s;font-family:var(--sans);
+}
+.nav-btn:hover,.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── SECTIONS ── */
+.section{display:none;max-width:960px;margin:0 auto;padding:48px 24px}
+.section.active{display:block}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+.metric{
+  background:var(--bg2);border:1px solid #e8e5de;
+  border-radius:var(--radius-lg);padding:24px 20px;
+  position:relative;overflow:hidden;
+}
+.metric::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--c,var(--purple));
+}
+.metric-val{
+  font-family:var(--serif);font-size:42px;line-height:1;
+  color:var(--c,var(--purple));margin-bottom:6px;
+}
+.metric-label{font-size:12px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:40px}
+.chart-card{background:var(--bg2);border:1px solid #e8e5de;border-radius:var(--radius-lg);padding:28px}
+.chart-title{font-size:13px;font-weight:600;color:var(--ink2);margin-bottom:20px;
+  display:flex;align-items:center;gap:8px;}
+.chart-title::before{content:'';width:3px;height:14px;background:var(--accent);border-radius:2px}
+
+/* Bar chart */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:12px;color:var(--ink2);width:88px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:#f0efeb;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-family:var(--mono);font-size:11px;color:var(--ink3);width:30px;flex-shrink:0}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut-legend{flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.legend-name{color:var(--ink2);flex:1}
+.legend-val{font-family:var(--mono);color:var(--ink3)}
+
+/* ── INSIGHT CARDS ── */
+.section-title{
+  font-family:var(--serif);font-size:28px;font-weight:400;
+  color:var(--ink);margin-bottom:8px;letter-spacing:-.01em;
+}
+.section-desc{font-size:14px;color:var(--ink3);margin-bottom:32px;max-width:600px}
+
+.user-cards{display:grid;gap:16px}
+.user-card{
+  background:var(--bg2);border:1px solid #e8e5de;
+  border-radius:var(--radius-lg);padding:24px 28px;
+  border-left:4px solid var(--c,var(--purple));
+  transition:box-shadow .2s;
+}
+.user-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.user-card-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:12px}
+.user-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--c-l,var(--purple-l));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:500;
+  color:var(--c,var(--purple));flex-shrink:0;
+}
+.user-title{font-weight:600;font-size:15px;color:var(--ink);line-height:1.3}
+.user-subtitle{font-size:12px;color:var(--ink3);margin-top:2px}
+.user-body{font-size:13px;color:var(--ink2);line-height:1.65}
+.badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.badge{
+  font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;
+  background:var(--bg3);color:var(--ink2);
+}
+.warning-note{
+  background:#fffbeb;border:1px solid #f5d97a;border-radius:var(--radius);
+  padding:12px 16px;font-size:13px;color:#7a5a10;margin-bottom:24px;
+  display:flex;gap:10px;align-items:flex-start;
+}
+
+/* ── INSIGHTS TABLE ── */
+.insight-table{width:100%;border-collapse:collapse;margin-top:8px}
+.insight-table th{
+  text-align:left;padding:10px 16px;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);
+  border-bottom:2px solid #e8e5de;background:var(--bg3);
+}
+.insight-table td{
+  padding:14px 16px;font-size:13px;color:var(--ink2);
+  border-bottom:1px solid #f0efeb;vertical-align:top;line-height:1.6;
+}
+.insight-table tr:last-child td{border-bottom:none}
+.insight-table tr:hover td{background:#faf9f6}
+.idx-cell{
+  font-family:var(--mono);font-size:11px;color:var(--ink4);
+  width:32px;text-align:center;
+}
+.arrow{color:var(--accent);font-size:11px;margin:0 6px}
+
+/* ── VIDEO TABLE ── */
+.table-controls{
+  display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;
+}
+.search-box{
+  flex:1;min-width:200px;
+  padding:9px 14px;border:1px solid #e0ddd6;border-radius:var(--radius);
+  font-family:var(--sans);font-size:13px;background:var(--bg2);
+  outline:none;transition:border-color .2s;
+}
+.search-box:focus{border-color:var(--accent)}
+.filter-select{
+  padding:9px 12px;border:1px solid #e0ddd6;border-radius:var(--radius);
+  font-family:var(--sans);font-size:13px;background:var(--bg2);
+  outline:none;cursor:pointer;
+}
+.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid #e8e5de}
+.video-table{width:100%;border-collapse:collapse;min-width:700px}
+.video-table th{
+  padding:12px 16px;text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);
+  background:var(--bg3);border-bottom:1px solid #e8e5de;white-space:nowrap;
+  cursor:pointer;user-select:none;
+}
+.video-table th:hover{color:var(--accent)}
+.video-table th.sorted{color:var(--accent)}
+.sort-icon{font-size:10px;margin-left:4px;opacity:.5}
+.video-table td{
+  padding:12px 16px;font-size:13px;color:var(--ink2);
+  border-bottom:1px solid #f0efeb;vertical-align:top;
+}
+.video-table tr:last-child td{border-bottom:none}
+.video-table tr:hover td{background:#faf9f6}
+.video-title-cell{max-width:280px}
+.video-title-link{
+  color:var(--ink);font-weight:500;text-decoration:none;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  line-height:1.4;
+}
+.video-title-link:hover{color:var(--accent)}
+.channel-tag{
+  font-size:11px;color:var(--ink3);margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
+}
+.duration-cell{font-family:var(--mono);font-size:12px;color:var(--ink3);white-space:nowrap}
+.tz-cell{font-size:11px;color:var(--ink3);white-space:nowrap}
+.desc-cell{font-size:12px;color:var(--ink3);max-width:260px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.no-results{text-align:center;padding:48px;color:var(--ink4);font-size:14px}
+.table-footer{
+  padding:12px 16px;font-size:12px;color:var(--ink4);
+  border-top:1px solid #e8e5de;display:flex;justify-content:space-between;align-items:center;
+  background:var(--bg3);border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:40px 24px;
+  font-size:12px;color:var(--ink4);border-top:1px solid #e8e5de;
+  margin-top:40px;
+}
+
+@media(max-width:640px){
+  .hero{padding:48px 24px 40px}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">lynote.ai · Product Analytics</div>
+    <h1>YouTube Transcript<br><em>付费用户视频行为分析</em></h1>
+    <p class="hero-sub">基于 71 条转录记录 · 分析用户使用 AI 转录功能时的内容偏好与市场分布 · 2026年6月</p>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showTab('overview')">概览</button>
+    <button class="nav-btn" onclick="showTab('users')">用户画像</button>
+    <button class="nav-btn" onclick="showTab('insights')">产品启示</button>
+    <button class="nav-btn" onclick="showTab('data')">原始数据</button>
+  </div>
+</nav>
+
+<!-- ────────────── TAB: OVERVIEW ────────────── -->
+<div class="section active" id="tab-overview">
+
+  <div class="metrics">
+    <div class="metric" style="--c:var(--purple)">
+      <div class="metric-val">71</div>
+      <div class="metric-label">转录视频总数</div>
+    </div>
+    <div class="metric" style="--c:var(--teal)">
+      <div class="metric-val">5</div>
+      <div class="metric-label">用户群体</div>
+    </div>
+    <div class="metric" style="--c:var(--coral)">
+      <div class="metric-val">5</div>
+      <div class="metric-label">内容类别</div>
+    </div>
+    <div class="metric" style="--c:var(--amber)">
+      <div class="metric-val">6+</div>
+      <div class="metric-label">语言 / 地区</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">内容分类分布</div>
+      <div class="donut-wrap">
+        <div style="flex-shrink:0">
+          <svg width="120" height="120" viewBox="0 0 120 120" id="donut-svg"></svg>
+        </div>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">语言市场分布</div>
+      <div id="lang-bars"></div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-bottom:24px">
+    <div class="chart-title">时区分布（用户设备所在地）</div>
+    <div id="tz-bars"></div>
+  </div>
+
+</div>
+
+<!-- ────────────── TAB: USERS ────────────── -->
+<div class="section" id="tab-users">
+  <div class="section-title">用户画像分析</div>
+  <div class="section-desc">基于时区、视频语言、内容主题综合推断，置信度标注如下。</div>
+
+  <div class="warning-note">
+    <span style="font-size:16px">⚠</span>
+    <span><strong>时区 ≠ 国籍。</strong>Asia/Riyadh 仅证明设备在 UTC+3 时区，结合大量泰米尔语内容，最可能是在沙特工作的泰米尔裔印度/斯里兰卡专业人士，而非沙特本地人。</span>
+  </div>
+
+  <div class="user-cards">
+    <div class="user-card" style="--c:var(--purple);--c-l:var(--purple-l)">
+      <div class="user-card-header">
+        <div class="user-avatar">R</div>
+        <div>
+          <div class="user-title">Asia/Riyadh 用户 — 41条（58%）</div>
+          <div class="user-subtitle">最大群体 · 置信度：中 · 推断为泰米尔裔在沙专业人士</div>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">职场晋升</span>
+        <span class="badge">泰米尔语内容</span>
+        <span class="badge">演讲训练</span>
+        <span class="badge">英语工作环境</span>
+      </div>
+      <div class="user-body">
+        转录了 Dr. Grace Lee 高管沟通系列（11条）、Unified Wisdom 泰米尔哲学课（16条）、Toastmasters 演讲评估（3条）、Jeyamohan 泰米尔文学访谈。<br><br>
+        英语内容聚焦"如何在职场中与高层对话、建立权威感"，泰米尔语内容涵盖思维方式、阅读、社交媒体批判等哲学议题。两类内容并行，呈现职业突破与文化认同并重的需求结构。沙特有约 250 万印度裔外籍劳工，泰米尔语使用者是其中重要群体。
+      </div>
+    </div>
+
+    <div class="user-card" style="--c:var(--blue);--c-l:var(--blue-l)">
+      <div class="user-card-header">
+        <div class="user-avatar">C</div>
+        <div>
+          <div class="user-title">America/Chicago 用户 — 8条</div>
+          <div class="user-subtitle">置信度：高 · 推断为正在晋升 EM 的 AI 工程师</div>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">AI/ML技术</span>
+        <span class="badge">工程领导力</span>
+        <span class="badge">美国本土</span>
+      </div>
+      <div class="user-body">
+        转录 Stanford CS229 LLM 课程、vLLM 架构（Anyscale）、Lenny's Podcast 工程管理、Radical Candor、The Manager's Path、YC AI 创业手册。<br><br>
+        内容组合高度典型：同步补技术硬课（LLM、vLLM）和管理软课（Manager's Path、Radical Candor），是正在从 IC 晋升 Engineering Manager 的工程师的标志性行为。
+      </div>
+    </div>
+
+    <div class="user-card" style="--c:var(--amber);--c-l:var(--amber-l)">
+      <div class="user-card-header">
+        <div class="user-avatar">?</div>
+        <div>
+          <div class="user-title">未标时区用户 — 11条</div>
+          <div class="user-subtitle">置信度：低（无地区信息）· 意图最明确</div>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">AI量化交易</span>
+        <span class="badge">Holdco收购</span>
+        <span class="badge">可能为欧洲用户</span>
+      </div>
+      <div class="user-body">
+        转录意大利语 AI 知识库视频（Simone Rizzo × 2）、Claude AI 交易 Agent、期货策略（NQ/ES Scalping × 4条）、Acquiring Minds 私募收购访谈（× 3条）。<br><br>
+        内容意图清晰：用 AI 构建自动交易系统 + 研究无外部投资人收购企业模式。意大利语内容暗示可能为欧洲/意大利用户。属于有一定资金基础的创业者/投资人画像。
+      </div>
+    </div>
+
+    <div class="user-card" style="--c:var(--teal);--c-l:var(--teal-l)">
+      <div class="user-card-header">
+        <div class="user-avatar">T</div>
+        <div>
+          <div class="user-title">America/Toronto 用户 — 5条</div>
+          <div class="user-subtitle">置信度：高 · 休闲内容，重复下载习惯显著</div>
+        </div>
+      </div>
+      <div class="badge-row">
+        <span class="badge">健身/运动</span>
+        <span class="badge">娱乐</span>
+        <span class="badge">强离线习惯</span>
+      </div>
+      <div class="user-body">
+        Mind Pump 健身播客同一集转录 3 次、Messi 2016/17 集锦转录 2 次。同一内容反复出现，说明是强离线使用习惯用户，可能在无网络场景（通勤/健身）中重复使用转录文字。
+      </div>
+    </div>
+
+    <div class="user-card" style="--c:var(--coral);--c-l:var(--coral-l)">
+      <div class="user-card-header">
+        <div class="user-avatar">M</div>
+        <div>
+          <div class="user-title">其他时区 — 6条（墨西哥/上海/东京/哥伦比亚）</div>
+          <div class="user-subtitle">各自独立，意图分散</div>
+        </div>
+      </div>
+      <div class="user-body">
+        <strong>墨西哥：</strong>原住民政策听证会直播 3 条（最长 4.5 小时），学术/政策研究用途明确。<br>
+        <strong>上海：</strong>匈牙利大选 Orbán 演讲（新闻/政治关注）。<br>
+        <strong>东京：</strong>日语播客（本地娱乐用户）。<br>
+        <strong>哥伦比亚：</strong>NatGeo 人体纪录片。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────── TAB: INSIGHTS ────────────── -->
+<div class="section" id="tab-insights">
+  <div class="section-title">对 lynote.ai 的产品启示</div>
+  <div class="section-desc">基于 YouTube Transcript 功能的真实付费用户使用行为，归纳以下产品方向建议。</div>
+
+  <table class="insight-table">
+    <thead>
+      <tr>
+        <th class="idx-cell">#</th>
+        <th>用户行为发现</th>
+        <th>产品建议</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="idx-cell">01</td>
+        <td>用户大量转录 <strong>1小时以上长视频</strong>（Stanford课程、播客、访谈），转录是学习消化的起点而非终点</td>
+        <td>AI Note「视频摘要 + 要点提炼」功能直接承接需求，主打 <strong>「转录完5分钟内出要点」</strong>的即用体验</td>
+      </tr>
+      <tr>
+        <td class="idx-cell">02</td>
+        <td><strong>泰米尔语内容占 24%</strong>，全部来自单一频道 Unified Wisdom 的忠实用户，且与大量英语职场内容并存</td>
+        <td>南亚语言市场（泰米尔语/印地语）有真实付费用户。双语 AI 摘要（母语 + 英语）是差异化功能点</td>
+      </tr>
+      <tr>
+        <td class="idx-cell">03</td>
+        <td>Chicago 用户同时转录 <strong>AI技术课 + 管理软技能课</strong>，内容跨度大，显然在系统性自我提升</td>
+        <td>「学习路径追踪」：对同一主题的多段视频自动关联笔记，呈现知识图谱，满足系统学习需求</td>
+      </tr>
+      <tr>
+        <td class="idx-cell">04</td>
+        <td>Toronto 用户 <strong>同一视频转录3次</strong>，说明有强烈的离线/重复查阅需求</td>
+        <td>转录历史去重提醒 + 离线笔记包导出，减少用户重复操作，提升感知价值</td>
+      </tr>
+      <tr>
+        <td class="idx-cell">05</td>
+        <td>意大利语内容 + 期货策略 + AI 交易 Agent，用户意图是 <strong>用 AI 替代自己做决策/赚钱</strong></td>
+        <td>针对「AI工具学习型用户」的 <strong>操作流程类视频转录</strong> 优化：支持时间戳跳转、步骤高亮</td>
+      </tr>
+      <tr>
+        <td class="idx-cell">06</td>
+        <td>墨西哥用户转录 <strong>政府政策听证直播</strong>（单条视频4.5小时），属于专业研究场景</td>
+        <td>超长视频分段转录 + 关键词搜索是专业用户痛点，可作为 Pro 版差异化功能</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ────────────── TAB: DATA ────────────── -->
+<div class="section" id="tab-data">
+  <div class="section-title">原始视频数据</div>
+  <div class="section-desc">71 条 YouTube Transcript 付费转录记录，含标题、频道、时长、时区信息。</div>
+
+  <div class="table-controls">
+    <input class="search-box" type="text" id="search" placeholder="搜索标题、频道、描述…" oninput="filterTable()">
+    <select class="filter-select" id="filter-tz" onchange="filterTable()">
+      <option value="">全部时区</option>
+    </select>
+    <select class="filter-select" id="filter-cat" onchange="filterTable()">
+      <option value="">全部类别</option>
+      <option value="AI">AI/技术</option>
+      <option value="职业">职业/领导力</option>
+      <option value="哲学">哲学/精神</option>
+      <option value="交易">商业/投资</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table class="video-table" id="video-table">
+      <thead>
+        <tr>
+          <th onclick="sortTable('num')"># <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('title')">标题 <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('channel')">频道 <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('duration')">时长 <span class="sort-icon">↕</span></th>
+          <th onclick="sortTable('tz')">时区 <span class="sort-icon">↕</span></th>
+          <th>描述摘要</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="table-footer">
+      <span id="table-count">加载中…</span>
+      <span style="color:var(--ink4)">点击表头可排序</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  lynote.ai · YouTube Transcript 用户行为分析报告 · 2026年6月 · Marketing Team
+</footer>
+
+<script>
+// ── DATA ──
+const DATA = [{"num": "1", "tz": "—", "title": "RAG è già vecchio? Il nuovo modo di costruire Knowledge Base per AI con LLM Wiki", "channel": "Simone Rizzo", "duration": "43:09", "url": "https://www.youtube.com/watch?v=LLxBcc_bMS8", "desc": "Entra nella mia Accademia AI:https://www.rizzoaiacademy.com/ Vuoi sviluppare soluzioni AI avanzate: https://inferentia.xyz IG: https://www.instagram.com/simorizzo_ai/  In questo video ti mostro il nuovo approccio per costruire una Knowledge Base per..."}, {"num": "2", "tz": "—", "title": "Il miglior modo per creare una Knowledge Base AI nel 2026", "channel": "Simone Rizzo", "duration": "11:25", "url": "https://www.youtube.com/watch?v=OeoOA9oVAU0", "desc": "Entra nella mia Accademia AI:https://www.rizzoaiacademy.com/Vuoi sviluppare soluzioni AI avanzate: https://inferentia.xyz IG: https://www.instagram.com/simorizzo_ai/  In questo video scopriamo Graphify, un sistema open source che permette di trasform..."}, {"num": "3", "tz": "—", "title": "I Turned Claude Into a 24/7 Trader", "channel": "Nate Herk | AI Automation", "duration": "33:16", "url": "https://www.youtube.com/watch?v=6MC1XqZSltw", "desc": "My FREE AI OS Course: https://www.skool.com/ai-automation-society/about?el=opus-4-7-trader&hcategory=youtube-videos&utm_campaign=free-group Full courses + unlimited support: https://www.skool.com/ai-automation-society-plus/about?el=opus-4-7-trader&hc..."}, {"num": "4", "tz": "—", "title": "How To Build A Self-Improving AI Trading Agent (Insanely Cool)", "channel": "Lewis Jackson", "duration": "18:02", "url": "https://www.youtube.com/watch?v=6njREUQAFdg", "desc": "▸ All FREE Systems & Prompts:   https://www.skool.com/zero-one/about  Useful links:   ▸ Track my progress on the 10x Challenge →   https://10x-app-production.up.railway.app/dca  Follow me:   📧  The Lewsletter (free twice weekly breakdown):   https://..."}, {"num": "5", "tz": "—", "title": "Easiest Futures Trading Strategy - Scalping NQ and ES", "channel": "Freedom Algo", "duration": "7:16", "url": "https://www.youtube.com/watch?v=qATs3xDZgiw", "desc": "https://www.skool.com/freedomalgo - Get your 7-day free trial and become a price action trader and futures scalper.  https://www.skool.com/manrewired - FREE community for men with courses on NLP and mindset that helps with trading with some specifica..."}, {"num": "6", "tz": "—", "title": "How To Make $1,000/Day Trading Futures (Easy Strategy)", "channel": "BrandonTrades", "duration": "11:03", "url": "https://www.youtube.com/watch?v=W7nlnHTUZQU", "desc": "📸 GET FUNDED 40% OFF + NO activation Fee (USE CODE: BRANDON) https://takeprofittrader.com/?referralCode=BRANDON 🚀 FREE TELEGRAM: https://t.me/+ALWef1Gwu4ljYWVh 💬 Join My Discord — https://whop.com/team-bull-trading/?d2c=true&directPlanId=plan_w1WvDt0..."}, {"num": "7", "tz": "—", "title": "+$10,509 Trading $ES Futures (THIS SETUP IS SO GOOD)", "channel": "RP Profits", "duration": "11:21", "url": "https://www.youtube.com/watch?v=p-2DORpwCRU", "desc": "Click here to learn my Strategy http://Strategy.profit-insiders.com"}, {"num": "8", "tz": "—", "title": "This Algo Strategy Has Only 3 rules and 62% Win Rate", "channel": "Critical Trading", "duration": "7:08", "url": "https://www.youtube.com/watch?v=_9Bmxylp63Y", "desc": "✅ Free webinar - elevate your trading using algorithmic strategies ➔ https://bit.ly/3oaqAsl  ✅ My flagship programme (6 strategies, signals, support & community) ➔ https://bit.ly/3IRGcsi  ----------------------------  In this video, I'll share a very..."}, {"num": "9", "tz": "—", "title": "The Magic of Low Multiple + Growth | David Graf Interview", "channel": "Acquiring Minds", "duration": "1:26:04", "url": "https://www.youtube.com/watch?v=xNjeOVi5Tb4", "desc": "The acquisition of today's guest was sitting on the market for over a year. Which may frustrate some of you searchers in DFW when you hear what a gem it turned out to be. David Graf himself had to get comfortable with it, due to the 96-year-old selle..."}, {"num": "10", "tz": "—", "title": "It Really Happened: 100% Financing for an $8m Business | Renan Cortez Interview", "channel": "Acquiring Minds", "duration": "1:29:59", "url": "https://www.youtube.com/watch?v=Ha5wDPzHb88", "desc": "100% seller financing… The idea that you can buy a business with little to no money. The seller of the business finances the whole acquisition price for you. Too good to be true? Usually, yes. And even when 100% seller-financed deals do happen, it's..."}, {"num": "11", "tz": "—", "title": "How to Turn $500k into a $38m Holdco (No Investors) | Garrison Snell Interview", "channel": "Acquiring Minds", "duration": "1:39:19", "url": "https://www.youtube.com/watch?v=DHxFxpSJJSw", "desc": "Today's guest owns 5 businesses. He has debt on them, but no outside investors, so his family are the sole owners of this portfolio that generated $9m in EBITDA in 2023. Also, Garrison Snell is 30. He has no formal background in finance; he actually..."}, {"num": "12", "tz": "America/Bogota", "title": "Viaje al Interior del Cuerpo Humano | Natgeo Documentales", "channel": "Pediatría Para Los Padres", "duration": "1:32:28", "url": "https://www.youtube.com/watch?v=iPje6NV8QjE", "desc": "A través de este vídeo documental podrás analizar y aprender a través de la observación, comprensión e interpretación lo maravilloso que es nuestro cuerpo humano, como todo lo que nos ocurre es parte significativa de un proceso perfectamente organiza..."}, {"num": "13", "tz": "America/Chicago", "title": "The FDE Playbook for AI Startups with Bob McGrew", "channel": "Y Combinator", "duration": "50:43", "url": "https://www.youtube.com/watch?v=Zyw-YA0k3xo", "desc": "Bob McGrew helped build some of the most influential technologies of the past two decades. Bob was an early engineer at PayPal, an early executive at Palantir and was recently Chief Research Officer at OpenAI - where he led the development of ChatGPT..."}, {"num": "14", "tz": "America/Chicago", "title": "The Manager’s Path: Camille Fournier in conversation", "channel": "LeadDev", "duration": "45:14", "url": "https://www.youtube.com/watch?v=DeinU3-sqdo", "desc": "How can you avoid the common pitfalls of engineering management?  As you ascend into managing engineers, or managing managers, there are  people and technical challenges to balance while continuing to understand your evolving role.   How can you make..."}, {"num": "15", "tz": "America/Chicago", "title": "The things engineers are desperate for PMs to understand | Camille Fournier (“The Manager’s Path”)", "channel": "Lenny's Podcast", "duration": "1:23:15", "url": "https://www.youtube.com/watch?v=hZSh0rs20uI", "desc": "Camille Fournier is the author of The Manager’s Path, which many consider the definitive guide for navigating one’s career path in tech. Camille was previously the CTO of Rent the Runway, VP of Technology at Goldman Sachs, Head of Platform Engineerin..."}, {"num": "16", "tz": "America/Chicago", "title": "Radical Candor: From theory to practice with author Kim Scott", "channel": "Lenny's Podcast", "duration": "1:26:39", "url": "https://www.youtube.com/watch?v=V7tnbx-6Ayc", "desc": "Kim Scott is the author of Radical Candor, currently the #1 most recommended book on this podcast. The book has sold over 1 million copies and has been translated into 23 languages. Before writing, Kim was a CEO coach at Dropbox, Qualtrics, Twitter,..."}, {"num": "17", "tz": "America/Chicago", "title": "Radical Respect: How To Work Together Better | SXSW 2024", "channel": "SXSW", "duration": "58:42", "url": "https://www.youtube.com/watch?v=kndx9GzZqts", "desc": "Portuguese and Spanish language translations for SXSW 2024 Keynotes and Featured Sessions presented by Itaú  We CAN create respectful, collaborative workplaces where everyone does the best work of their lives and enjoys working together. Join Radical..."}, {"num": "18", "tz": "America/Chicago", "title": "Become a Great Engineering Leader - James Stanier", "channel": "Tech Lead Journal", "duration": "1:07:23", "url": "https://www.youtube.com/watch?v=LYnmjXemkoY", "desc": "“Leadership is where you have, not necessarily a large organization, but increasing scope and increasing impact, while bringing lots of people along with you.”  In this milestone episode of the podcast, James Stanier returns for the third time to dis..."}, {"num": "19", "tz": "America/Chicago", "title": "Stanford CS229 I Machine Learning I Building Large Language Models (LLMs)", "channel": "Stanford Online", "duration": "1:44:31", "url": "https://www.youtube.com/watch?v=9vM4p9NN0Ts", "desc": "For more information about Stanford's Artificial Intelligence programs visit: https://stanford.io/ai  This lecture provides a concise overview of building a ChatGPT-like model, covering both pretraining (language modeling) and post-training (SFT/RLHF..."}, {"num": "20", "tz": "America/Chicago", "title": "Embedded LLM’s Guide to vLLM Architecture & High-Performance Serving | Ray Summit 2025", "channel": "Anyscale", "duration": "32:18", "url": "https://www.youtube.com/watch?v=2Xpovbw9M78", "desc": "At Ray Summit 2025, Tun Jian Tan from Embedded LLM shares an inside look at what gives vLLM its industry-leading speed, flexibility, and extensibility—offering a deep architectural walkthrough designed for everyone from day-to-day users to future ker..."}, {"num": "21", "tz": "America/Mexico_City", "title": "Preconsultiva a Pueblos y Comunidades Indígenas y Afromexicanas 11/05/26.", "channel": "CongresoGto 03", "duration": "3:02:27", "url": "https://www.youtube.com/watch?v=UZtrs_DF_ME", "desc": "11/05/26 Preconsultiva a Pueblos y Comunidades Indígenas y Afromexicanas"}, {"num": "22", "tz": "America/Mexico_City", "title": "EN VIVO/ Encuentro: El proceso de la consulta indígena frente a la reforma al Art. 2° Constitucional", "channel": "Cámara de Diputados ", "duration": "4:23:48", "url": "https://www.youtube.com/watch?v=tlOn9zngnm0", "desc": "Sigue en vivo el Encuentro: “El proceso de consulta indígena frente a la reforma al artículo 2o. constitucional y su ley general”."}, {"num": "23", "tz": "America/Mexico_City", "title": "Foro de Consulta a los Pueblos Indígenas y Afromexicano sobre el Plan Nacional de Desarrollo (PND).", "channel": "Instituto Nacional de los Pueblos Indígenas (INPI)", "duration": "1:45:40", "url": "https://www.youtube.com/watch?v=I4MVJhBZcqY", "desc": "Instituto Nacional de los Pueblos Indígenas (INPI). Morelia, Michoacán. 19 de nero de 2025."}, {"num": "24", "tz": "America/Toronto", "title": "5 Weird Tricks That Trigger Fast Muscle Growth | Mind Pump 2858", "channel": "Mind Pump Show", "duration": "1:05:39", "url": "https://www.youtube.com/watch?v=ywnSoe0Gpj0", "desc": "In this episode the guys break down 5 weird but proven ways to quickly trigger muscle growth — one set to failure, blood flow occlusion training, the all-day workout method, doubling your protein intake, and post-workout sauna. They also get into a 1..."}, {"num": "25", "tz": "America/Toronto", "title": "Lionel Messi 2016/17 – Magical Level: Dribbling Skills, Goals, Passes", "channel": "THE ICONIC", "duration": "31:02", "url": "https://www.youtube.com/watch?v=qKv8BzOilvE", "desc": "Lionel Messi 2016/17 – Ballon D'Or Level : Dribbling Skills, Goals, Passes Lionel Messi 2016/17 – Magical Level: Dribbling Skills, Goals  Lionel Messi 2016/17 – Still the Best in the World Messi 2016/17 – A Season of Magic Lionel Messi – The 2016/17..."}, {"num": "26", "tz": "America/Toronto", "title": "Lionel Messi 2016/17 – Magical Level: Dribbling Skills, Goals, Passes", "channel": "THE ICONIC", "duration": "31:02", "url": "https://www.youtube.com/watch?v=qKv8BzOilvE", "desc": "Lionel Messi 2016/17 – Ballon D'Or Level : Dribbling Skills, Goals, Passes Lionel Messi 2016/17 – Magical Level: Dribbling Skills, Goals  Lionel Messi 2016/17 – Still the Best in the World Messi 2016/17 – A Season of Magic Lionel Messi – The 2016/17..."}, {"num": "27", "tz": "America/Toronto", "title": "5 Weird Tricks That Trigger Fast Muscle Growth | Mind Pump 2858", "channel": "Mind Pump Show", "duration": "1:05:39", "url": "https://www.youtube.com/watch?v=ywnSoe0Gpj0", "desc": "In this episode the guys break down 5 weird but proven ways to quickly trigger muscle growth — one set to failure, blood flow occlusion training, the all-day workout method, doubling your protein intake, and post-workout sauna. They also get into a 1..."}, {"num": "28", "tz": "America/Toronto", "title": "5 Weird Tricks That Trigger Fast Muscle Growth | Mind Pump 2858", "channel": "Mind Pump Show", "duration": "1:05:39", "url": "https://www.youtube.com/watch?v=ywnSoe0Gpj0", "desc": "In this episode the guys break down 5 weird but proven ways to quickly trigger muscle growth — one set to failure, blood flow occlusion training, the all-day workout method, doubling your protein intake, and post-workout sauna. They also get into a 1..."}, {"num": "29", "tz": "Asia/Riyadh", "title": "வாசிப்பு என்பது பொழுதுபோக்கா", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "14:03", "url": "https://www.youtube.com/watch?v=pzIhVGTxvyw", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "30", "tz": "Asia/Riyadh", "title": "The 5 Signals Senior Leaders Scan For Before They Trust You", "channel": "Dr. Grace Lee", "duration": "15:41", "url": "https://www.youtube.com/watch?v=G4Ooi6J8I7I", "desc": "Promotions are risk reallocation, not performance rewards. If you are ready to shift how leadership assesses you, apply for a strategy call here: https://m.masteryinsights.com/application  What is Enterprise Trust? Enterprise Trust is a prediction me..."}, {"num": "31", "tz": "Asia/Riyadh", "title": "4 Hidden Laws That Decide If You’re Support Staff or Leadership", "channel": "Dr. Grace Lee", "duration": "15:26", "url": "https://www.youtube.com/watch?v=l0J5KPvz0ZA", "desc": "There’s a difference between being helpful and being promoted. If you’re not being evaluated for leadership, you’re being used for stability. If you want help making a value shift in your specific situation, apply for a strategy call here: https://m...."}, {"num": "32", "tz": "Asia/Riyadh", "title": "Speak The Language of The C-Suite: Command the Boardroom", "channel": "Dr. Grace Lee", "duration": "26:27", "url": "https://www.youtube.com/watch?v=AmnIinzDhOQ", "desc": "Why do some experts command the boardroom while others are seen only as data recorders? Join Dr. Grace’s Mastery Accelerator to move beyond the information hierarchy and start delivering the high-stakes synthesis executives actually value: https://m...."}, {"num": "33", "tz": "Asia/Riyadh", "title": "5 Rules for Speaking With Authority So Executives Actually Listen", "channel": "Dr. Grace Lee", "duration": "18:59", "url": "https://www.youtube.com/watch?v=0e1fDqWAtd4", "desc": "Tired of presenting ideas that get dismissed by senior leaders? Master the signals of authority and gain clarity for the year ahead with Dr. Grace's Executive Presence Formula: https://www.executivepresenceedge.com/yt-home  The problem isn't your con..."}, {"num": "34", "tz": "Asia/Riyadh", "title": "7 CEO Mindset Principles for Transformative Personal Growth", "channel": "Dr. Grace Lee", "duration": "22:49", "url": "https://www.youtube.com/watch?v=nNQy9G6gLkc", "desc": "Unlock the CEO mindset that propels ambitious professionals to transformative personal growth. Master powerful principles and elevate your career with Dr. Grace’s programs: https://m.masteryinsights.com/work-with-dr-grace  The most successful leaders..."}, {"num": "35", "tz": "Asia/Riyadh", "title": "How CEOs REALLY Think (7 Counterintuitive Principles You Were Never Taught)", "channel": "Dr. Grace Lee", "duration": "23:59", "url": "https://www.youtube.com/watch?v=mZQka22ghOI", "desc": "Are you ready to unlock the strategic thinking patterns that separate CEOs from everyone else in the corporate hierarchy? Master Dr. Grace Lee's proven leadership principles to elevate your career to the next level. Discover more here: https://m.mast..."}, {"num": "36", "tz": "Asia/Riyadh", "title": "It's Not About The Money, It's About Impact?", "channel": "Dr. Grace Lee", "duration": "6:16", "url": "https://www.youtube.com/watch?v=rM79P6XWtPE", "desc": "Are you chasing a paycheck or striving to make a real impact? Amplify your leadership impact with Dr. Grace Lee's values-driven principles here: https://m.masteryinsights.com/work-with-dr-grace  Welcome to The 5AM Leadership Lab, where Dr. Grace answ..."}, {"num": "37", "tz": "Asia/Riyadh", "title": "How to Be More Persuasive to Get Buy-In", "channel": "Dr. Grace Lee", "duration": "9:50", "url": "https://www.youtube.com/watch?v=XEyQJYmlWE8", "desc": "Do you want to get buy-in for your ideas and step up into more strategic leadership roles? Master the art of persuasive communication through executive coaching with Dr. Grace Lee. Apply here: https://m.masteryinsights.com/work-with-dr-grace  As an e..."}, {"num": "38", "tz": "Asia/Riyadh", "title": "Communication Tips to Look and Sound Confident in The Boardroom", "channel": "Dr. Grace Lee", "duration": "14:03", "url": "https://www.youtube.com/watch?v=QQn8NTBHrWU", "desc": "Are you tired of feeling invisible in the boardroom? Do you want to exude confidence and command attention every time you speak? Master the art of boardroom communication through mentorship with Dr. Grace Lee. Book a call with her team here: https://..."}, {"num": "39", "tz": "Asia/Riyadh", "title": "How to Talk to Higher Ups Without Fear - Communicate With Executives", "channel": "Dr. Grace Lee", "duration": "13:03", "url": "https://www.youtube.com/watch?v=GraGFq7bIWI", "desc": "Do you feel anxious when speaking with higher ups in your company? If you want to have the confidence to speak with clarity and without fear, apply for Dr. Grace Lee's executive coaching program here: https://m.masteryinsights.com/work-with-dr-grace...."}, {"num": "40", "tz": "Asia/Riyadh", "title": "You Don't Have a Communication Problem. You Have a Thinking Problem.", "channel": "Dr. Grace Lee", "duration": "16:45", "url": "https://www.youtube.com/watch?v=8nUUwDwkWbk", "desc": "Your fear of public speaking is not a confidence problem, it's a thinking problem. If you’re ready to dismantle the root mechanism of speaking anxiety, join Mastery Accelerator and step into your true executive presence: https://m.masteryinsights.com..."}, {"num": "41", "tz": "Asia/Riyadh", "title": "சமூக ஊடகம் என்னும் மனநோய் வட்டம்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "31:53", "url": "https://www.youtube.com/watch?v=kcnUtmZl62M", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "42", "tz": "Asia/Riyadh", "title": "நுண் அலகு அரசியல்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "20:22", "url": "https://www.youtube.com/watch?v=yDHWyeucigU", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "43", "tz": "Asia/Riyadh", "title": "நமது மூளையை அழிக்கும் செல்போன் வைரஸ்கள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "20:52", "url": "https://www.youtube.com/watch?v=oLPvrvshM6k", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "44", "tz": "Asia/Riyadh", "title": "வரலாறு உருவாகி வரும் வழி", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "15:59", "url": "https://www.youtube.com/watch?v=LBRA-XWop0Q", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "45", "tz": "Asia/Riyadh", "title": "இருளிலிருந்து ஒளிக்கு செல்வோமாக", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "9:18", "url": "https://www.youtube.com/watch?v=LFT_mPVI_R8", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "46", "tz": "Asia/Riyadh", "title": "நாம் செய்ய வேண்டியது என்ன?", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "20:55", "url": "https://www.youtube.com/watch?v=VivetKIp_LM", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "47", "tz": "Asia/Riyadh", "title": "Great leadership starts with self-leadership | Lars Sudmann | TEDxUCLouvain", "channel": "TEDx Talks", "duration": "12:47", "url": "https://www.youtube.com/watch?v=vlpKyLklDDY", "desc": "At TEDxUtopia, the question was asked: What would leadership in Utopia look like? To start with, imagine the best leader you have ever worked with. How did he or she get to become this type of leader? Leadership lecturer and former corporate executiv..."}, {"num": "48", "tz": "Asia/Riyadh", "title": "Self-leadership: superpower for thriving in today's volatile world  | Georgie Dickins | TEDxOltrarno", "channel": "TEDx Talks", "duration": "17:37", "url": "https://www.youtube.com/watch?v=omkwDIfcCCw", "desc": "Humankind has entered a new paradigm. Our modern-day world is one characterised by complexity, uncertainty and heightened disruption. Georgie will be sharing her three key lessons to thrive, beginning with the importance of extraordinary self-leaders..."}, {"num": "49", "tz": "Asia/Riyadh", "title": "Successful Project Steering Committee Meetings", "channel": "Stuart Taylor - Project Management", "duration": "8:19", "url": "https://www.youtube.com/watch?v=uZrimlzyj9k", "desc": "What is a steering committee?  And how do you get the greatest value out of the meeting for your project?  💡 Need expert guidance? 🔹 Looking for your first or next project management job? → Check out my course: https://geni.us/FindYourNextPMJob 🔹 For..."}, {"num": "50", "tz": "Asia/Riyadh", "title": "Nervous About Presenting? Do This Instead", "channel": "Stuart Taylor - Project Management", "duration": "8:03", "url": "https://www.youtube.com/watch?v=AU64p-mFUoo", "desc": "If you've ever overthought every word before a presentation, rushed through your slides, or walked away wondering if anyone understood what you just said — this video is for you.  I’ll walk you through a simple, human way to sound more confident and..."}, {"num": "51", "tz": "Asia/Riyadh", "title": "How to Be Taken Seriously at Work", "channel": "Stuart Taylor - Project Management", "duration": "10:26", "url": "https://www.youtube.com/watch?v=3Sibv6C5Nmw", "desc": "You’re smart. You’re capable. But for some reason, people at work still don’t take you seriously. This video looks at why that happens—and how to quietly shift the way people see you. It’s not about being louder. It’s about being intentional.  Watch..."}, {"num": "52", "tz": "Asia/Riyadh", "title": "சிந்திப்பதற்கான வழிமுறைகள் என்ன?", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "27:20", "url": "https://www.youtube.com/watch?v=xRyfxW8Q8go", "desc": "www.unifiedwisdom.guru முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம்..."}, {"num": "53", "tz": "Asia/Riyadh", "title": "நவ வேதாந்தம் இந்தியாவின்  மாபெரும் இயக்கம்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "13:26", "url": "https://www.youtube.com/watch?v=m-P_umGqfcc", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "54", "tz": "Asia/Riyadh", "title": "உள்ளுணர்வை கூர்தீட்டிக்கொள்ள முடியுமா? | முழுமையறிவு | Unified Wisdom |குரு நித்யா நினைவு வகுப்புகள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "10:17", "url": "https://www.youtube.com/watch?v=KEjwnkMnZ5c", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru   குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம் என அனைத்துத் துறை அறிவுகளையும் ஒன்றோடொன்ற..."}, {"num": "55", "tz": "Asia/Riyadh", "title": "யாருக்குத் தத்துவம் தேவை?  | Unified Wisdom | முழுமையறிவு | குரு நித்யா நினைவு வகுப்புகள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "11:12", "url": "https://www.youtube.com/watch?v=7XMGl5AVaS8", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru   குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம் என அனைத்துத் துறை அறிவுகளையும் ஒன்றோடொன்ற..."}, {"num": "56", "tz": "Asia/Riyadh", "title": "நேரத்தைப் பங்கிடுதல், செலவழித்தல்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "14:57", "url": "https://www.youtube.com/watch?v=YZqZls-6z6M", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "57", "tz": "Asia/Riyadh", "title": "திறமைக்கும் அறிவுக்கும் என்ன வேறுபாடு? |முழுமையறிவு | unifiedwisdom |குரு நித்யா நினைவு வகுப்புகள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "18:33", "url": "https://www.youtube.com/watch?v=9311-8lte1s", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru   குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம் என அனைத்துத் துறை அறிவுகளையும் ஒன்றோடொன்ற..."}, {"num": "58", "tz": "Asia/Riyadh", "title": "மூளையை சாட்டையால் அடியுங்கள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "11:15", "url": "https://www.youtube.com/watch?v=FWX7bpOJDyI", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "59", "tz": "Asia/Riyadh", "title": "The Art of Storytelling | Palki Sharma Upadhyay", "channel": "WOX NEWS", "duration": "9:52", "url": "https://www.youtube.com/watch?v=FU1MPWmSo1U", "desc": "Palki Sharma Upadhyay, one of India’s most respected journalists, is known for her powerful storytelling and sharp news presentation. In this video, we explore “The Art of Storytelling” — how Palki transforms facts into compelling narratives that inf..."}, {"num": "60", "tz": "Asia/Riyadh", "title": "மதத்திலிருந்து தத்துவத்தை பிரிக்க முடியுமா? | முழுமையறிவு |குரு நித்யா நினைவு வகுப்புகள்", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "12:41", "url": "https://www.youtube.com/watch?v=N6XtHCLsUlE", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru   குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம் என அனைத்துத் துறை அறிவுகளையும் ஒன்றோடொன்ற..."}, {"num": "61", "tz": "Asia/Riyadh", "title": "How To Become Effortlessly Confident (For Introverts)", "channel": "Effortless Charm", "duration": "7:13", "url": "https://www.youtube.com/watch?v=Fc5WY2qp8GE", "desc": "Learn to Become Confident Here: https://effortless-charm.kit.com/aab9c66690   Timestamps 0:00 Intro 0:11 Level 1 0:32 Level 2 1:40 Level 3   2:45 Level 4 5:28 Level 5"}, {"num": "62", "tz": "Asia/Riyadh", "title": "B. Jeyamohan Interview With Baradwaj Rangan | Exploring", "channel": "Galatta Plus", "duration": "1:36:52", "url": "https://www.youtube.com/watch?v=tozOsE9-Ljo", "desc": "Watch writer Jeyamohan open up about what it takes to be a writer, how cinema has treated him, what can be classified as art and it's different forms.  #jeyamohan #galattaplus #baradwajrangan  ---------------------------------------------------------..."}, {"num": "63", "tz": "Asia/Riyadh", "title": "பிள்ளைகளை பதட்டமின்றி உருவாக்கும் வழி", "channel": "Unified Wisdom - முழுமையறிவு", "duration": "27:44", "url": "https://www.youtube.com/watch?v=zPOQQ1tbDFw", "desc": "www.unifiedwisdom.guru  முழுமையறிவு அமைப்பு வெளியீடு - தொடர்புக்கு : www.unifiedwisdom.guru  மின்னஞ்சல் : programsvishnupuram@gmail.com  குரு நித்யா நினைவு பயிற்சி வகுப்புகள்  முழுமையறிவு (Unified Wisdom) - கலை, இலக்கியம், தத்துவம், அறிவியல், ஆன்மிகம..."}, {"num": "64", "tz": "Asia/Riyadh", "title": "மூன்று அறிதல் முறைகள் - அமெரிக்கா - சியாட்டல் உரை - அக்டோபர் 14, 2023", "channel": "Jeyamohan", "duration": "1:28:37", "url": "https://www.youtube.com/watch?v=U3TXbSwrW1s", "desc": "இந்த உரை நாம் எப்படி அறிகிறோம் என்பதை நாமே அறிவதற்கான முறைகளைப் பற்றியது."}, {"num": "65", "tz": "Asia/Riyadh", "title": "An Evaluation of a IceBreaker Speech at Toastmasters", "channel": "My Toastmasters Public Speaking Experience", "duration": "2:53", "url": "https://www.youtube.com/watch?v=9-BsvGW_VY8", "desc": "This is when the evaluator gives feedback to the speaker. This evaluation is given for a member giving his Ice breaker speech.  March 16, 2016"}, {"num": "66", "tz": "Asia/Riyadh", "title": "The Courage to Explore and Evolve || Evaluation by Carolyn Calpin [Ice Breaker]", "channel": "TGIF & Born to Shine Toastmasters (Taiwan)", "duration": "3:33", "url": "https://www.youtube.com/watch?v=-t8d_tERGG4", "desc": "Evaluator: Carolyn Calpin Objective: Ice Breaker Path: N/A . Speaker: Flora Hsueh-Klassen Speech: https://youtu.be/-6HC5EKy1no  TGIF Mtg. 303 Date: 20 September 2024 Theme:  Love Yourself 活動主題： 愛自己 Meeting Pictures: https://www.facebook.com/media/set..."}, {"num": "67", "tz": "Asia/Riyadh", "title": "Ice breaker speech evaluation", "channel": "b1LLy mo kow!", "duration": "3:55", "url": "https://www.youtube.com/watch?v=LIpShscmec8", "desc": "It's evaluation time. How good am I? See how beautiful this gal is? Thank you so much TM KC!!!"}, {"num": "68", "tz": "Asia/Riyadh", "title": "How to Articulate Your Thoughts More Clearly Than 99% of People", "channel": "Effortless Charm", "duration": "5:24", "url": "https://www.youtube.com/watch?v=lI3sOYnH6cw", "desc": "4 Steps to Persuading Anyone Who You Speak:  https://effortless-charm.kit.com/0545efb4e1      Timestamps  0:00 Intro 0:18 Set an Anchor (key highlight upfront)  1:02 Reduce Cognitive Load 2:20 Action Bias 3:40 Handling Nervousness  4:57 There's no Im..."}, {"num": "69", "tz": "Asia/Riyadh", "title": "Think Fast, Talk Smart: Communication Techniques", "channel": "Stanford Graduate School of Business", "duration": "58:20", "url": "https://www.youtube.com/watch?v=HAnw168huqA", "desc": "\"The talk that launched @ThinkFastTalkSmart. In October of 2014, Matt Abrahams, a lecturer of strategic communication at Stanford Graduate School of Business, gave a lecture at Alumni Weekend.   Millions of views later, this video marks the very begi..."}, {"num": "70", "tz": "Asia/Shanghai", "title": "FULL ADDRESS: Viktor Orbán Hold Final Rally Ahead of Hungary’s Crucial Parliamentary Election | AC15", "channel": "DWS News", "duration": "34:31", "url": "https://www.youtube.com/watch?v=qhpuscmaHiQ", "desc": "Viktor Orbán held his final campaign rally ahead of the April 12 parliamentary election, marking the closing stage of a highly competitive political race in Székesfehérvár and Budapest.  Supporters gathered in large numbers as Orbán delivered his fin..."}, {"num": "71", "tz": "Asia/Tokyo", "title": "Ep.39 初の生配信収録で企画会議とこれまでいただいたコメントを読みまくる回！", "channel": "深夜のログアウト", "duration": "1:29:58", "url": "https://www.youtube.com/watch?v=-Wy7uzUQCGA", "desc": "生収録！  ＝＝＝ すべてが違う。ゲームは好き。 管理職おじさん・パジマと、お酒好きの変な後輩・ゆうが、深夜にゲームやエンタメ、カルチャーの「反省会」。 大人になっても、ゲームと、好きなものの話がしたい。そんな思いを持つ多くの人に楽しんでいただけるような深夜トークを目指します。 【更新】毎週月・金 早朝"}];
+
+// ── CATEGORIES ──
+function categorize(title, channel, desc) {
+  const t = (title+channel+desc).toLowerCase();
+  if(/vllm|llm|rag|claude|ai agent|trading agent|知識?[Bb]ase|knowledge base|stanford|machine learning|graphify|agentic/i.test(title+channel)) return 'AI';
+  if(/trading|futures|scalping|algo|NQ|ES futures|holdco|acquiring|startup|invest/i.test(title+channel)) return '商业/投资';
+  if(/unified wisdom|தத்துவம்|வரலாறு|மூளை|சமூக|jeyamohan|philosophy|vedanta/i.test(title+channel)) return '哲学/精神';
+  if(/leader|manager|pm|radical|executive|boardroom|speak|toastmaster|project|engineer.*lead|camille|lenny/i.test(title+channel)) return '职业/领导力';
+  return '其他';
+}
+
+// ── TABS ──
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── CHARTS ──
+const COLORS = {
+  '职业/领导力': '#4a42b0',
+  'AI': '#12866a',
+  '哲学/精神': '#c04a22',
+  '商业/投资': '#9a6010',
+  '其他': '#888'
+};
+
+function drawDonut() {
+  const counts = {};
+  DATA.forEach(d => {
+    const c = categorize(d.title, d.channel, d.desc);
+    counts[c] = (counts[c]||0)+1;
+  });
+  const total = DATA.length;
+  const cats = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  
+  const svg = document.getElementById('donut-svg');
+  const cx=60, cy=60, R=50, r=30;
+  let angle = -Math.PI/2;
+  let paths = '';
+  
+  cats.forEach(([cat, val]) => {
+    const sweep = (val/total) * Math.PI * 2;
+    const x1 = cx + R*Math.cos(angle), y1 = cy + R*Math.sin(angle);
+    const x2 = cx + R*Math.cos(angle+sweep), y2 = cy + R*Math.sin(angle+sweep);
+    const xi1 = cx + r*Math.cos(angle), yi1 = cy + r*Math.sin(angle);
+    const xi2 = cx + r*Math.cos(angle+sweep), yi2 = cy + r*Math.sin(angle+sweep);
+    const lg = sweep > Math.PI ? 1 : 0;
+    paths += `<path d="M${x1},${y1} A${R},${R} 0 ${lg},1 ${x2},${y2} L${xi2},${yi2} A${r},${r} 0 ${lg},0 ${xi1},${yi1} Z" fill="${COLORS[cat]||'#888'}" stroke="#f7f5f0" stroke-width="2"/>`;
+    angle += sweep;
+  });
+  
+  svg.innerHTML = paths + `<text x="60" y="57" text-anchor="middle" font-size="16" font-weight="600" fill="#0f0f0f" font-family="DM Serif Display,serif">71</text><text x="60" y="70" text-anchor="middle" font-size="9" fill="#6b6b6b" font-family="Outfit,sans-serif">视频</text>`;
+  
+  const legend = document.getElementById('donut-legend');
+  legend.innerHTML = cats.map(([cat,val]) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${COLORS[cat]||'#888'}"></div><span class="legend-name">${cat}</span><span class="legend-val">${val}</span></div>`
+  ).join('');
+}
+
+function drawBars(containerId, data, maxVal) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = data.map(([label, val, color]) => `
+    <div class="bar-row">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${val/maxVal*100}%;background:${color}"></div></div>
+      <div class="bar-val">${val}</div>
+    </div>`).join('');
+}
+
+// ── TABLE ──
+let sortKey = 'num', sortAsc = true;
+
+function renderTable() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const tz = document.getElementById('filter-tz').value;
+  const cat = document.getElementById('filter-cat').value;
+  
+  let rows = DATA.filter(d => {
+    const matchQ = !q || d.title.toLowerCase().includes(q) || d.channel.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q);
+    const matchTz = !tz || d.tz === tz;
+    const matchCat = !cat || categorize(d.title, d.channel, d.desc).includes(cat);
+    return matchQ && matchTz && matchCat;
+  });
+  
+  rows.sort((a,b) => {
+    let va = a[sortKey]||'', vb = b[sortKey]||'';
+    if(sortKey==='num') { va=+va; vb=+vb; }
+    if(va<vb) return sortAsc?-1:1;
+    if(va>vb) return sortAsc?1:-1;
+    return 0;
+  });
+  
+  const tbody = document.getElementById('table-body');
+  if(!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="no-results">没有匹配的结果</td></tr>';
+  } else {
+    tbody.innerHTML = rows.map(d => `
+      <tr>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--ink4)">${d.num}</td>
+        <td class="video-title-cell">
+          <a class="video-title-link" href="${d.url}" target="_blank" rel="noopener">${d.title||'(无标题)'}</a>
+          <div class="channel-tag">${d.channel||'—'}</div>
+        </td>
+        <td style="font-size:12px;color:var(--ink2);max-width:120px">${d.channel||'—'}</td>
+        <td class="duration-cell">${d.duration||'—'}</td>
+        <td class="tz-cell">${d.tz||'—'}</td>
+        <td class="desc-cell">${d.desc||'—'}</td>
+      </tr>`).join('');
+  }
+  document.getElementById('table-count').textContent = `显示 ${rows.length} / ${DATA.length} 条记录`;
+}
+
+function filterTable() { renderTable(); }
+
+function sortTable(key) {
+  if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; }
+  document.querySelectorAll('.video-table th').forEach(th => th.classList.remove('sorted'));
+  event.target.classList.add('sorted');
+  renderTable();
+}
+
+// ── INIT ──
+(function init() {
+  // timezone filter options
+  const tzs = [...new Set(DATA.map(d=>d.tz))].sort();
+  const sel = document.getElementById('filter-tz');
+  tzs.forEach(tz => { const o=document.createElement('option'); o.value=tz; o.textContent=tz; sel.appendChild(o); });
+  
+  // draw charts
+  drawDonut();
+  drawBars('lang-bars', [
+    ['英语', 42, '#4a42b0'],
+    ['泰米尔语', 17, '#12866a'],
+    ['日语/其他', 6, '#6b6b6b'],
+    ['西班牙语', 4, '#c04a22'],
+    ['意大利语', 2, '#9a6010'],
+  ], 42);
+  drawBars('tz-bars', [
+    ['Asia/Riyadh', 41, '#4a42b0'],
+    ['未标时区', 11, '#1456a0'],
+    ['America/Chicago', 8, '#12866a'],
+    ['America/Toronto', 5, '#9a6010'],
+    ['America/Mexico_City', 3, '#c04a22'],
+    ['其他', 3, '#6b6b6b'],
+  ], 41);
+  
+  renderTable();
+})();
+</script>
+</body>
+</html>
