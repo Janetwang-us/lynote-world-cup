@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will Messi, Ronaldo & Neymar Play in the 2026 World Cup? | Lynote</title>
+<meta name="description" content="The latest updates on whether Messi, Ronaldo and Neymar will play at the 2026 FIFA World Cup.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --violet:    #6D28D9;
+  --violet-lt: #EDE9FE;
+  --violet-md: #7C3AED;
+  --ink:       #111827;
+  --ink-soft:  #374151;
+  --muted:     #6B7280;
+  --rule:      #E5E7EB;
+  --bg:        #F9FAFB;
+  --white:     #FFFFFF;
+  --green:     #059669;
+  --green-lt:  #ECFDF5;
+  --red:       #DC2626;
+  --red-lt:    #FEF2F2;
+  --amber:     #D97706;
+  --amber-lt:  #FFFBEB;
+}
+
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  padding: 0;
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-inner {
+  max-width: 760px; margin: 0 auto; padding: 14px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-icon {
+  width: 32px; height: 32px; background: var(--violet);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+}
+.nav-logo-icon span { color: #fff; font-size: 16px; font-weight: 800; }
+.nav-logo-name { font-size: 17px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-link { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .15s; }
+.nav-link:hover { color: var(--ink); }
+.nav-cta {
+  font-size: 13px; font-weight: 600;
+  padding: 8px 20px; background: var(--violet); color: #fff;
+  border-radius: 8px; text-decoration: none; transition: opacity .15s;
+}
+.nav-cta:hover { opacity: .85; }
+
+/* ── LAYOUT ── */
+.article-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ── HEADER ── */
+.article-header { padding: 48px 0 36px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; background: var(--violet-lt); color: var(--violet);
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em; margin-bottom: 20px;
+}
+.article-title {
+  font-size: clamp(26px, 4.5vw, 40px);
+  font-weight: 800; line-height: 1.15;
+  letter-spacing: -0.02em; color: var(--ink);
+  margin-bottom: 16px;
+}
+.article-deck {
+  font-size: 17px; font-weight: 400; color: var(--muted);
+  line-height: 1.65; margin-bottom: 20px; max-width: 620px;
+}
+.article-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13px; font-weight: 500; color: var(--muted);
+}
+.meta-sep { color: var(--rule); }
+
+/* ── HERO IMG ── */
+.hero-img-wrap { margin: 0 0 36px; border-radius: 12px; overflow: hidden; }
+.hero-img-wrap img { width: 100%; height: 360px; object-fit: cover; object-position: center 20%; display: block; }
+.hero-caption { font-size: 12px; color: var(--muted); margin-top: 8px; font-weight: 400; }
+
+/* ── DIVIDER ── */
+.section-rule { border: none; border-top: 1px solid var(--rule); margin: 40px 0; }
+
+/* ── BODY TEXT ── */
+.article-body p {
+  font-size: 16px; font-weight: 400; color: var(--ink-soft);
+  line-height: 1.75; margin-bottom: 20px;
+}
+.article-body p strong { color: var(--ink); font-weight: 700; }
+
+/* ── PLAYER SECTION HEADING ── */
+.player-heading {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 0 16px;
+  border-bottom: 2px solid var(--rule);
+  margin: 40px 0 20px;
+}
+.player-flag { font-size: 32px; line-height: 1; }
+.player-heading-text h2 {
+  font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--ink); line-height: 1.2; margin-bottom: 2px;
+}
+.player-heading-text .sub {
+  font-size: 13px; font-weight: 500; color: var(--muted);
+}
+
+/* ── STATUS BADGE ── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+  margin-bottom: 20px;
+}
+.status-yes  { background: var(--green-lt); color: var(--green); }
+.status-warn { background: var(--amber-lt); color: var(--amber); }
+.status-no   { background: var(--red-lt);   color: var(--red); }
+.status-dot  { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.status-yes .status-dot  { animation: blink 1.5s infinite; }
+.status-warn .status-dot { animation: blink 1.5s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── PLAYER IMG ── */
+.player-img {
+  width: 100%; max-height: 300px; object-fit: cover; object-position: top;
+  border-radius: 10px; margin-bottom: 8px; display: block;
+}
+.img-caption { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+/* ── BLOCKQUOTE ── */
+blockquote {
+  border-left: 3px solid var(--violet);
+  background: var(--violet-lt);
+  padding: 16px 20px; margin: 24px 0;
+  border-radius: 0 8px 8px 0;
+}
+blockquote p {
+  font-size: 15px; font-style: italic; color: var(--ink-soft);
+  margin: 0 0 8px !important;
+}
+blockquote cite {
+  font-size: 12px; font-weight: 600; color: var(--violet);
+  font-style: normal; display: block;
+}
+
+/* ── FACT LIST ── */
+.facts-list { list-style: none; margin: 12px 0 24px; padding: 0; }
+.facts-list li {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+  font-size: 15px; color: var(--ink-soft); font-weight: 400;
+}
+.facts-list li:last-child { border-bottom: none; }
+.facts-list li::before {
+  content: '';
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--violet); flex-shrink: 0; margin-top: 5px;
+}
+
+/* ── PRODUCT BOX ── */
+.product-box {
+  background: var(--violet-lt);
+  border: 1px solid #C4B5FD;
+  border-radius: 12px;
+  padding: 28px;
+  margin: 32px 0;
+}
+.product-box-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--violet); margin-bottom: 8px;
+}
+.product-box h3 {
+  font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--ink); margin-bottom: 10px; line-height: 1.3;
+}
+.product-box > p {
+  font-size: 14px; color: var(--ink-soft); margin-bottom: 20px !important; line-height: 1.6;
+}
+.steps { list-style: none; margin: 0 0 20px; padding: 0; counter-reset: steps; }
+.steps li {
+  counter-increment: steps;
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid rgba(109,40,217,0.12);
+  font-size: 14px; color: var(--ink-soft);
+}
+.steps li:last-child { border-bottom: none; }
+.steps li::before {
+  content: counter(steps);
+  min-width: 24px; height: 24px; border-radius: 50%;
+  background: var(--violet); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.screenshot-ph {
+  background: white; border: 1.5px dashed #C4B5FD; border-radius: 8px;
+  padding: 24px 20px; margin: 12px 0; text-align: center;
+}
+.screenshot-ph .ph-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--violet); margin-bottom: 4px; display: block;
+}
+.screenshot-ph .ph-desc { font-size: 13px; color: var(--muted); }
+.product-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 12px 24px; background: var(--violet); color: #fff;
+  font-size: 14px; font-weight: 700; border-radius: 8px;
+  text-decoration: none; transition: opacity .15s; margin-top: 4px;
+}
+.product-cta:hover { opacity: .85; }
+
+/* ── SUMMARY TABLE ── */
+.table-wrap { overflow-x: auto; margin: 28px 0; border-radius: 10px; border: 1px solid var(--rule); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead tr { background: var(--ink); }
+th {
+  padding: 12px 16px; text-align: left;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #fff;
+}
+td {
+  padding: 13px 16px; border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft); vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: var(--bg); }
+.td-player { font-weight: 700; color: var(--ink); font-size: 15px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+}
+.badge-yes  { background: var(--green-lt); color: var(--green); }
+.badge-warn { background: var(--amber-lt); color: var(--amber); }
+.badge-no   { background: var(--red-lt);   color: var(--red); }
+
+/* ── FAQ ── */
+.faq { margin: 40px 0; }
+.faq h2 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--ink); margin-bottom: 24px;
+}
+.faq-item { padding: 20px 0; border-bottom: 1px solid var(--rule); }
+.faq-item:last-child { border-bottom: none; }
+.faq-q { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.faq-a { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+
+/* ── FOOTER CTA ── */
+.footer-cta {
+  background: var(--violet); border-radius: 12px;
+  padding: 36px 32px; margin: 48px 0; text-align: center;
+}
+.footer-cta h3 {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  color: #fff; margin-bottom: 10px;
+}
+.footer-cta p { font-size: 14px; color: #DDD6FE; margin-bottom: 24px; line-height: 1.6; }
+.footer-cta a {
+  display: inline-block; padding: 13px 32px;
+  background: #fff; color: var(--violet);
+  font-size: 14px; font-weight: 700; border-radius: 8px;
+  text-decoration: none; transition: opacity .15s;
+}
+.footer-cta a:hover { opacity: .9; }
+.footer-note { font-size: 12px; color: #C4B5FD; margin-top: 12px; }
+
+/* ── SITE FOOTER ── */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 24px;
+  text-align: center;
+  max-width: 760px; margin: 0 auto;
+}
+.site-footer p { font-size: 12px; color: var(--muted); }
+.site-footer a { color: var(--muted); text-decoration: none; }
+.site-footer a:hover { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .hero-img-wrap img { height: 220px; }
+  .article-header { padding: 32px 0 24px; }
+  .product-box { padding: 20px; }
+  .footer-cta { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="https://lynote.ai" class="nav-logo">
+      <div class="nav-logo-icon"><span>L</span></div>
+      <span class="nav-logo-name">Lynote</span>
+    </a>
+    <div class="nav-right">
+      <a href="https://lynote.ai/blog" class="nav-link">Blog</a>
+      <a href="https://lynote.ai/ai-note-generator" class="nav-cta">Try Free</a>
+    </div>
+  </div>
+</nav>
+
+<div class="article-wrap">
+
+  <!-- HEADER -->
+  <header class="article-header">
+    <div class="eyebrow">⚽ 2026 FIFA World Cup</div>
+    <h1 class="article-title">Will Messi, Ronaldo &amp; Neymar Play in the 2026 World Cup?</h1>
+    <p class="article-deck">All three icons are confirmed — but injuries, age, and squad selection have complicated the picture. Here's the latest update on each player heading into the tournament.</p>
+    <div class="article-meta">
+      <span>Updated June 5, 2026</span>
+      <span class="meta-sep">·</span>
+      <span>6 min read</span>
+      <span class="meta-sep">·</span>
+      <span>By Lynote</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero-img-wrap">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Cristiano_Ronaldo_and_Lionel_Messi_-_Portugal_vs_Argentina%2C_9th_February_2011.jpg/1200px-Cristiano_Ronaldo_and_Lionel_Messi_-_Portugal_vs_Argentina%2C_9th_February_2011.jpg"
+      alt="Messi and Ronaldo at Portugal vs Argentina, 2011"
+      onerror="this.style.background='#f3f4f6';this.style.height='200px'">
+    <div class="hero-caption">Messi and Ronaldo pictured together at a 2011 Portugal vs Argentina friendly — both now set for their record sixth World Cup. Photo: Wikimedia Commons, CC BY 3.0</div>
+  </div>
+
+  <div class="article-body">
+
+    <p>The 2026 FIFA World Cup is finally here — and for millions of fans, the biggest question isn't which team will win. It's whether the three most iconic players of their generation will take the field one last time.</p>
+    <p>Messi. Ronaldo. Neymar. All three have defined modern football. All three are at the twilight of their careers. Here's what we know as of June 2026.</p>
+
+    <!-- ── MESSI ── -->
+    <div class="player-heading">
+      <span class="player-flag">🇦🇷</span>
+      <div class="player-heading-text">
+        <h2>Lionel Messi</h2>
+        <div class="sub">Argentina · Age 38 · 6th World Cup</div>
+      </div>
+    </div>
+
+    <div class="status-badge status-warn">
+      <span class="status-dot"></span>
+      IN SQUAD — FITNESS BEING MONITORED
+    </div>
+
+    <img class="player-img"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Lionel_Messi_20180626.jpg/800px-Lionel_Messi_20180626.jpg"
+      alt="Lionel Messi at the 2018 FIFA World Cup"
+      onerror="this.style.display='none'">
+    <div class="img-caption">Messi in action at the 2018 FIFA World Cup — now preparing for his record sixth tournament. Photo: Wikimedia Commons, CC BY-SA 3.0</div>
+
+    <p>Lionel Messi <strong>will play at the 2026 World Cup</strong> — making him the first men's player in history to compete at six different World Cups. Argentina coach Lionel Scaloni confirmed Messi in his 26-man squad and named him captain of the defending world champions.</p>
+
+    <p>The catch: Messi is carrying a hamstring injury. In late May, the 38-year-old left Inter Miami's match against Philadelphia Union in the 73rd minute with muscle fatigue in his left hamstring. Inter Miami confirmed the issue but provided no timetable for his return.</p>
+
+    <blockquote>
+      <p>"We would have liked him to arrive without any kind of problems, but that is not the case. Our goal is to try to recover them and have them arrive in the best possible condition."</p>
+      <cite>— Lionel Scaloni, Argentina head coach</cite>
+    </blockquote>
+
+    <p>As of early June, Messi has joined Argentina's training camp in Kansas City and is on an individual recovery programme. Argentina are expected to continue monitoring his fitness ahead of their group-stage opener against <strong>Algeria on June 16</strong>.</p>
+
+    <ul class="facts-list">
+      <li>First men's player ever to appear in six World Cups</li>
+      <li>Defending champion — Argentina chasing back-to-back titles for the first time since 1962</li>
+      <li>Widely expected to retire from international duty after this tournament</li>
+      <li>Playing on home turf — he lives in Miami; tournament spans USA, Canada &amp; Mexico</li>
+    </ul>
+
+    <!-- PRODUCT BOX -->
+    <div class="product-box">
+      <div class="product-box-eyebrow">Try with Lynote</div>
+      <h3>Turn any Messi video into AI notes &amp; flashcards</h3>
+      <p>Lynote's AI Note Generator converts any World Cup YouTube video — highlights, tactical breakdowns, interviews — into structured notes and flashcards in under 2 minutes.</p>
+      <ol class="steps">
+        <li>Find a Messi YouTube video (highlights, interviews, tactical analysis)</li>
+        <li>Paste the URL into Lynote at <strong>lynote.ai/ai-note-generator</strong></li>
+        <li>Click <strong>Generate</strong> — get structured AI notes instantly</li>
+        <li>Create AI Flashcards in one click — review in Flashcard Mode</li>
+      </ol>
+
+      <div class="screenshot-ph">
+        <span class="ph-label">📸 Product screenshot</span>
+        <span class="ph-desc">Lynote AI Note Generator — paste any World Cup YouTube URL and click Parse</span>
+      </div>
+      <div class="screenshot-ph">
+        <span class="ph-label">📸 Product screenshot</span>
+        <span class="ph-desc">AI-generated structured notes from a Messi career highlights video</span>
+      </div>
+      <div class="screenshot-ph">
+        <span class="ph-label">📸 Product screenshot</span>
+        <span class="ph-desc">One-click AI Flashcard generation panel</span>
+      </div>
+      <div class="screenshot-ph">
+        <span class="ph-label">📸 Product screenshot</span>
+        <span class="ph-desc">Lynote Flashcard Mode — 10 cards, swipe to review</span>
+      </div>
+
+      <a href="https://lynote.ai/ai-note-generator" class="product-cta">Try Lynote Free — No Card Required →</a>
+    </div>
+
+    <!-- ── RONALDO ── -->
+    <div class="player-heading">
+      <span class="player-flag">🇵🇹</span>
+      <div class="player-heading-text">
+        <h2>Cristiano Ronaldo</h2>
+        <div class="sub">Portugal · Age 41 · 6th World Cup</div>
+      </div>
+    </div>
+
+    <div class="status-badge status-yes">
+      <span class="status-dot"></span>
+      IN SQUAD — FULLY FIT &amp; TRAINING
+    </div>
+
+    <p>Cristiano Ronaldo, now <strong>41 years old</strong>, is in Portugal's 26-man squad — his record-equalling sixth World Cup tournament. He captains the side and has been training with the full group since camp opened.</p>
+    <p>This is almost certainly Ronaldo's last World Cup. And for the first time, Portugal arrives as a genuinely complete team — reigning UEFA Nations League champions, with a squad stacked with PSG's Champions League winners: Vitinha, Nuno Mendes, João Neves, and Gonçalo Ramos.</p>
+
+    <ul class="facts-list">
+      <li><strong>143</strong> international goals — the most in men's football history</li>
+      <li><strong>226</strong> caps — also a world record</li>
+      <li>940+ career goals for club and country — chasing the 1,000-goal milestone</li>
+      <li>Portugal drawn in <strong>Group K</strong> with DR Congo, Uzbekistan, and Colombia</li>
+      <li>Has never scored in a World Cup knockout stage match</li>
+    </ul>
+
+    <p>The one thing missing from Ronaldo's trophy cabinet? The World Cup. This is his last real chance.</p>
+
+    <!-- ── NEYMAR ── -->
+    <div class="player-heading">
+      <span class="player-flag">🇧🇷</span>
+      <div class="player-heading-text">
+        <h2>Neymar Jr.</h2>
+        <div class="sub">Brazil · Age 34 · Not selected</div>
+      </div>
+    </div>
+
+    <div class="status-badge status-no">
+      <span class="status-dot" style="animation:none"></span>
+      NOT SELECTED FOR BRAZIL'S 2026 SQUAD
+    </div>
+
+    <img class="player-img"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Bra-Cos_Rica_%2817%29_%28cropped%29.jpg/800px-Bra-Cos_Rica_%2817%29_%28cropped%29.jpg"
+      alt="Neymar at the 2018 FIFA World Cup"
+      onerror="this.style.display='none'">
+    <div class="img-caption">Neymar at the 2018 World Cup — Brazil's all-time top scorer will not feature in 2026. Photo: Wikimedia Commons, CC BY-SA 2.0</div>
+
+    <p>Neymar's 2026 World Cup dream is over. The 34-year-old has been plagued by injuries since tearing his ACL in October 2023 while playing for Al Hilal. He has barely played competitive football since, and Brazil's coach Dorival Júnior did not select him for the squad.</p>
+    <p>Brazil will instead rely on a new generation — Vinicius Jr., Rodrygo, Endrick, and Raphinha — to carry the Seleção through the tournament.</p>
+
+    <ul class="facts-list">
+      <li>Not selected for Brazil's 2026 World Cup squad</li>
+      <li>ACL surgery October 2023 — almost no competitive football since</li>
+      <li>Brazil's all-time top scorer with <strong>79 international goals</strong></li>
+      <li>International career may now be effectively over at 34</li>
+    </ul>
+
+    <!-- SUMMARY TABLE -->
+    <hr class="section-rule">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Age</th>
+            <th>Tournaments</th>
+            <th>2026 Status</th>
+            <th>Group Opener</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="td-player">🇦🇷 Lionel Messi</span></td>
+            <td>38</td>
+            <td>6th</td>
+            <td><span class="badge badge-warn">⚠ Fitness concern</span></td>
+            <td>vs Algeria, Jun 16</td>
+          </tr>
+          <tr>
+            <td><span class="td-player">🇵🇹 Cristiano Ronaldo</span></td>
+            <td>41</td>
+            <td>6th</td>
+            <td><span class="badge badge-yes">✓ Fit &amp; selected</span></td>
+            <td>Group K</td>
+          </tr>
+          <tr>
+            <td><span class="td-player">🇧🇷 Neymar Jr.</span></td>
+            <td>34</td>
+            <td>—</td>
+            <td><span class="badge badge-no">✗ Not selected</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FAQ -->
+    <hr class="section-rule">
+    <div class="faq">
+      <h2>Frequently Asked Questions</h2>
+
+      <div class="faq-item">
+        <div class="faq-q">Is Messi playing in the 2026 World Cup?</div>
+        <div class="faq-a">Yes. Messi is in Argentina's 26-man squad and named captain. He is managing a left hamstring issue and his availability for the opening match on June 16 remains uncertain. He is on an individual recovery programme in Kansas City.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Will Ronaldo play in the 2026 World Cup?</div>
+        <div class="faq-a">Yes. Ronaldo, 41, is in Portugal's squad, fully fit, and training with the group. This is his sixth — and almost certainly final — World Cup.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is Neymar in the 2026 World Cup?</div>
+        <div class="faq-a">No. Neymar was not selected by Brazil coach Dorival Júnior after two years of injury struggles following an ACL tear in October 2023.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Could Messi and Ronaldo face each other at the 2026 World Cup?</div>
+        <div class="faq-a">Yes — in theory. Argentina and Portugal could meet in the knockout stages. Reports suggest a possible quarter-final matchup in Kansas City if both teams advance as group winners.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is this Messi's last World Cup?</div>
+        <div class="faq-a">It is widely expected that Messi will retire from international duty after this tournament. He has not officially confirmed this, but all indications point to 2026 being his farewell on the international stage.</div>
+      </div>
+    </div>
+
+    <!-- FOOTER CTA -->
+    <div class="footer-cta">
+      <h3>Follow every World Cup match more closely</h3>
+      <p>Paste any match highlight or interview into Lynote and get structured AI notes and flashcards in seconds. Completely free to start.</p>
+      <a href="https://lynote.ai/ai-note-generator">Try Lynote Free — No Card Required</a>
+      <div class="footer-note">Works with any YouTube video · Takes under 2 minutes</div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="site-footer">
+  <p>© 2026 <a href="https://lynote.ai">Lynote.ai</a> · <a href="https://lynote.ai/ai-note-generator">AI Note Generator</a> · Made for football fans who want to learn smarter.</p>
+</footer>
+
+</body>
+</html>
